@@ -32,7 +32,7 @@ class LqrConan(ConanFile):
 		cmake.build()
 
 	def package(self):
-		self.copy("*.h", dst="include", src="src/lqr")
+		self.copy("*.h", dst="include/lqr", src="src/lqr")
 		self.copy("*.lib", dst="lib", keep_path=False)
 		self.copy("*.dll", dst="bin", keep_path=False)
 		self.copy("*.so", dst="lib", keep_path=False)
@@ -41,3 +41,7 @@ class LqrConan(ConanFile):
 
 	def package_info(self):
 		self.cpp_info.libs = ["lqr"]
+		self.cpp_info.includedirs = [
+			"include/lqr",
+			"include"
+		]
