@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+import os
 
 
 class LqrConan(ConanFile):
@@ -8,7 +9,8 @@ class LqrConan(ConanFile):
 	description = "Liquid Rescale library"
 	settings = "os", "compiler", "build_type", "arch"
 	generators = "cmake"
-	requires = "glib/2.58.1@insanefactory/stable"
+	build_requires = "cmake_installer/3.15.5@conan/stable"
+	requires = "glib/2.58.3@bincrafters/stable"
 	exports = "CMakeLists.txt"
 	options = {
 		"shared": [True, False]
@@ -16,23 +18,23 @@ class LqrConan(ConanFile):
 	default_options = {
 		"shared": True
 	}
+	_source_subfolder = "source_subfolder"
 
 	def configure(self):
 		del self.settings.compiler.libcxx
 
 	def source(self):
-		self.run("git clone https://github.com/carlobaldassi/liblqr.git src")
-		self.run("cd src && git checkout v" + self.version)
-
+		archive = "liblqr-%s" % self.version
+		tools.get("https://github.com/carlobaldassi/liblqr/archive/v%s.tar.gz" % self.version)
+		os.rename(archive, self._source_subfolder)
+		
 	def build(self):
 		cmake = CMake(self)
-		cmake.configure(defs={
-			"shared": self.options.shared
-		})
+		cmake.configure()
 		cmake.build()
 
 	def package(self):
-		self.copy("*.h", dst="include/lqr", src="src/lqr")
+		self.copy("*.h", dst="include/lqr", src=os.path.join(self._source_subfolder, "lqr"))
 		self.copy("*.lib", dst="lib", keep_path=False)
 		self.copy("*.dll", dst="bin", keep_path=False)
 		self.copy("*.so", dst="lib", keep_path=False)
